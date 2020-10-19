@@ -74,18 +74,27 @@ using MetaUtils
 ```
 
 ```julia
-@show a = cons(2, 1)
-@show b = cons(3, a)
-@show c = cons(4, b)
-@show d = cons(5, c)
-;
-```
-
-```julia
 @show a = cons(1, nil)
 @show b = cons(2, a)
 @show c = cons(3, b)
 @show d = cons(4, c)
+;
+```
+
+```julia
+@show a = cons(1, 0)
+@show b = cons(2, a)
+@show c = cons(3, b)
+@show d = cons(4, c)
+;
+```
+
+```julia
+@show car((1,))
+@show car((1, 2))
+@show car((1, 2, 3))
+@show car((1, 2, 3, 4))
+@show car(((1, 2), 3, 4))
 ;
 ```
 
@@ -98,26 +107,20 @@ using MetaUtils
 ```
 
 ```julia
-@show car((1,))
-@show car((1, 2))
-@show car((1, 2, 3))
-@show car(((1, 2), 3, 4))
-;
-```
-
-```julia
 @show cdr(1)
-@show cdr((1=>2,))
-@show cdr((1, 2=>3))
-@show cdr((1, 2, 3=>4))
-;
-```
-
-```julia
 @show cdr((1,))
 @show cdr((1, 2))
 @show cdr((1, 2, 3))
+@show cdr((1, 2, 3, 4))
 @show cdr(((1, 2), 3, 4))
+;
+```
+
+```julia
+@show cdr((1=>2,))
+@show cdr((1, 2=>3))
+@show cdr((1, 2, 3=>4))
+@show cdr((1, 2, 3, 4=>5))
 ;
 ```
 
@@ -178,14 +181,13 @@ https://nbviewer.jupyter.org/gist/genkuroki/b60908cca4f4978b8adcaa7955e7b5b6
 
 ```lisp
 ((lambda (assoc k v) (assoc k v))
- '(lambda (k v)
-    (cond ((eq v '()) nil)
-          ((eq (car (car v)) k)
-           (car v))
-          ('t (assoc k (cdr v)))))
- 'Orange
- '((Apple . 120) (Orange . 210) (Lemmon . 180)))
-=> (Orange . 210)
+    '(lambda (k v) (cond
+         ((eq v '()) nil)
+         ((eq (car (car v)) k) (cdr (car v)))
+         ('t (assoc k (cdr v)))))
+    'Orange
+    '((Apple . 120) (Orange . 210) (Lemmon . 180)))
+=> 210
 ```
 <!-- #endregion -->
 
@@ -193,7 +195,7 @@ https://nbviewer.jupyter.org/gist/genkuroki/b60908cca4f4978b8adcaa7955e7b5b6
 @lexpr2expr lambda((assoc, k, v), assoc(k, v))(
     lambda((k, v), cond(
             (eq(v, nil), nil),
-            (eq(car(car(v)), k), car(v)), 
+            (eq(car(car(v)), k), cdr(car(v))), 
             (true, assoc(k, cdr(v))))),
     :Orange,
     ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
@@ -203,7 +205,7 @@ https://nbviewer.jupyter.org/gist/genkuroki/b60908cca4f4978b8adcaa7955e7b5b6
 @leval lambda((assoc, k, v), assoc(k, v))(
     lambda((k, v), cond(
             (eq(v, nil), nil),
-            (eq(car(car(v)), k), car(v)), 
+            (eq(car(car(v)), k), cdr(car(v))), 
             (true, assoc(k, cdr(v))))),
     :Apple,
     ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
@@ -213,7 +215,7 @@ https://nbviewer.jupyter.org/gist/genkuroki/b60908cca4f4978b8adcaa7955e7b5b6
 @leval lambda((assoc, k, v), assoc(k, v))(
     lambda((k, v), cond(
             (eq(v, nil), nil),
-            (eq(car(car(v)), k), car(v)), 
+            (eq(car(car(v)), k), cdr(car(v))), 
             (true, assoc(k, cdr(v))))),
     :Orange,
     ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
@@ -223,7 +225,7 @@ https://nbviewer.jupyter.org/gist/genkuroki/b60908cca4f4978b8adcaa7955e7b5b6
 @leval lambda((assoc, k, v), assoc(k, v))(
     lambda((k, v), cond(
             (eq(v, nil), nil),
-            (eq(car(car(v)), k), car(v)), 
+            (eq(car(car(v)), k), cdr(car(v))), 
             (true, assoc(k, cdr(v))))),
     :Lemmon,
     ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
@@ -233,7 +235,7 @@ https://nbviewer.jupyter.org/gist/genkuroki/b60908cca4f4978b8adcaa7955e7b5b6
 @leval lambda((assoc, k, v), assoc(k, v))(
     lambda((k, v), cond(
             (eq(v, nil), nil),
-            (eq(car(car(v)), k), car(v)), 
+            (eq(car(car(v)), k), cdr(car(v))), 
             (true, assoc(k, cdr(v))))),
     :Melon,
     ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
@@ -243,7 +245,7 @@ https://nbviewer.jupyter.org/gist/genkuroki/b60908cca4f4978b8adcaa7955e7b5b6
 @show_texpr lambda((assoc, k, v), assoc(k, v))(
     lambda((k, v), cond(
             (eq(v, nil), nil),
-            (eq(car(car(v)), k), car(v)), 
+            (eq(car(car(v)), k), cdr(car(v))), 
             (true, assoc(k, cdr(v))))),
     :Orange,
     ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
@@ -258,7 +260,7 @@ texpr_exmaple4(x) = (:call,
     (:lambda, (:tuple, :assoc, :k, :v), (:call, :assoc, :k, :v)), 
     (:lambda, (:tuple, :k, :v), (:cond, 
             (:tuple, (:eq, :v, :nil), :nil), 
-            (:tuple, (:eq, (:car, (:car, :v)), :k), (:car, :v)), 
+            (:tuple, (:eq, (:car, (:car, :v)), :k), (:cdr, (:car, :v))), 
             (:tuple, true, (:call, :assoc, :k, (:cdr, :v))))), 
     (:quote, x), 
     :(((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,))))
