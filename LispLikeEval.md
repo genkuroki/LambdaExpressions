@@ -28,7 +28,7 @@ pkg> add https://github.com/genkuroki/LispLikeEval.jl
 
 <!-- #region {"toc": true} -->
 <h1>Table of Contents<span class="tocSkip"></span></h1>
-<div class="toc"><ul class="toc-item"><li><span><a href="#Examples" data-toc-modified-id="Examples-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Examples</a></span></li><li><span><a href="#Plot-example-of-MetaUtils.@teval" data-toc-modified-id="Plot-example-of-MetaUtils.@teval-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Plot example of MetaUtils.@teval</a></span></li><li><span><a href="#Documents" data-toc-modified-id="Documents-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Documents</a></span></li></ul></div>
+<div class="toc"><ul class="toc-item"><li><span><a href="#Lisp-like-functions" data-toc-modified-id="Lisp-like-functions-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Lisp-like functions</a></span></li><li><span><a href="#@leval-examples" data-toc-modified-id="@leval-examples-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>@leval examples</a></span></li><li><span><a href="#MetaUtils.@teval-plot-exmaple" data-toc-modified-id="MetaUtils.@teval-plot-exmaple-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>MetaUtils.@teval plot exmaple</a></span></li><li><span><a href="#Documents" data-toc-modified-id="Documents-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>Documents</a></span></li></ul></div>
 <!-- #endregion -->
 
 ```julia
@@ -44,7 +44,77 @@ using LispLikeEval
 using MetaUtils
 ```
 
-## Examples
+## Lisp-like functions
+
+```julia
+@lexpr2expr lambda((x, y), f(x, y))(a, b)
+```
+
+```julia
+@lexpr2expr lambda((x, y), f(x, y))
+```
+
+```julia
+@lexpr2expr cond((a, A), (b, B), (c, C))
+```
+
+```julia
+@show null(nil)
+@show null(1)
+;
+```
+
+```julia
+@show eq(nil, nil)
+@show eq(nil, ())
+@show eq((), nil)
+@show eq(1, 1)
+@show eq(1, 2)
+;
+```
+
+```julia
+@show a = cons(2, 1)
+@show b = cons(3, a)
+@show c = cons(4, b)
+@show d = cons(5, c)
+;
+```
+
+```julia
+@show car(1)
+@show car(1=>2)
+@show car((1, 2=>3))
+@show car((1, 2, 3=>4))
+@show car((1,))
+@show car((1, 2))
+@show car((1, 2, 3))
+@show car(((1, 2), 3, 4))
+;
+```
+
+```julia
+@show cdr(1)
+@show cdr(1=>2)
+@show cdr((1, 2=>3))
+@show cdr((1, 2, 3=>4))
+@show cdr((1,))
+@show cdr((1, 2))
+@show cdr((1, 2, 3))
+@show cdr(((1, 2), 3, 4))
+;
+```
+
+```julia
+@show list()
+@show list(1)
+@show list(1, 2)
+@show list(1, 2, 3)
+@show list(1, 2, 3, 4)
+;
+```
+
+## @leval examples
 
 ```julia
 lexpr = :(lambda((x, y), x+y)(1, 2))
@@ -155,7 +225,7 @@ texpr_exmaple4(:Lemmon) |> texpr2expr |> leval
 texpr_exmaple4(:Melon) |> texpr2expr |> leval
 ```
 
-## Plot example of MetaUtils.@teval
+## MetaUtils.@teval plot exmaple
 
 ```julia
 begin
