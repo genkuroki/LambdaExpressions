@@ -1,67 +1,128 @@
 module LispLikeEval
 
-export translate_lambda, @translate_lambda, eval_lambda, @eval_lambda, lambda
+export lambda, cond, lexpr2expr, @lexpr2expr, leval, @leval
 
 ########## manipulate tuple expressions
 
-"""`lambda()` is the dummy function."""
+arraycdr(x) = length(x) ≥ 2 ? x[2:end] : eltype(x)[]
+
+"""
+`lambda` is a Lisp-like dummy function to be translated to Julia expression by `lexpr2expr`.
+
+For example, `lambda((x, y), f(x, y))(a, b)` is translated to
+
+```julia
+let
+    x = a
+    y = b
+    f(x, y)
+end
+```
+
+`lambda((x, y), f(x, y))` without arguments (a, b) is translated to
+
+```julia
+(x, y) -> f(x, y)
+```
+"""
 function lambda end
 
-"""`translate_lambda!(x)` is the in-place version."""
-translate_lambda!(x) = x
+"""
+`cond` is a Lisp-like dummy function to be translated to Julia expression by `lexpr2expr`.
 
-function translate_lambda!(expr::Expr)
-    if expr.head == :call && expr.args[1] == :lambda
-        xs = expr.args[2]
-        F = expr.args[3]
+For example, `cond((a, A), (b, B), (c, C))` is translated to
+
+```julia
+if a
+    A
+elseif b
+    B
+elseif c
+    C
+end
+```
+"""
+function cond end
+
+"""`lexpr2expr!(x)` is the in-place version of lexpr2expr(x)."""
+lexpr2expr!(x) = x
+
+function lexpr2expr!(expr::Expr)
+    head, args = expr.head, expr.args
+    if head == :call && args[1] == :lambda
+        xs = args[2]
+        F = args[3]
         expr = Expr(:->, xs, F)
-    elseif (!isempty(expr.args) && expr.args[1] isa Expr &&
-        expr.args[1].head == :call && expr.args[1].args[1] == :lambda)
-        if expr.args[1].args[2] isa Symbol
-            xs = expr.args[1].args[2]
-        else
-            xs = expr.args[1].args[2].args
+    elseif head == :call && args[1] == :cond
+        isone(length(args)) && return :nil
+        k = 2
+        a = args[k].args[1]
+        A = arraycdr(args[k].args)
+        expr = Expr(:if, a, Expr(:block, A...))
+        ifelseargs = expr.args
+        k += 1
+        while k ≤ length(args)
+            a = args[k].args[1]
+            A = arraycdr(args[k].args)
+            push!(ifelseargs, Expr(:elseif, Expr(:block, a), Expr(:block, A...)))
+            ifelseargs = ifelseargs[end].args
+            k += 1
         end
-        F = expr.args[1].args[3]
-        Xs = @view expr.args[2:end]
+    elseif (!isempty(args) && args[1] isa Expr &&
+            args[1].head == :call && args[1].args[1] == :lambda)
+        xs = args[1].args[2]
+        if xs isa Expr
+            if xs.head == :tuple
+                xs = args[1].args[2].args
+            elseif xs.head == :call && xs.args[1] == :list
+                xs = arraycdr(xs.args)
+            end
+        end
+        F = args[1].args[3]
+        Xs = arraycdr(args)
         @assert length(xs) == length(Xs)
         alist = (x => X for (x, X) in zip(xs, Xs))
         expr = Expr(:let, Expr(:block), 
             Expr(:block, (Expr(:(=), x, X) for (x, X) in alist)..., F))
     end
+    
     for i in eachindex(expr.args)
-        expr.args[i] = translate_lambda!(expr.args[i])
+        expr.args[i] = lexpr2expr!(expr.args[i])
     end
     expr
 end
 
 """
-    translate_lambda(x)
+    lexpr2expr(x)
 
-returns the translation of an expression `x` with __lambda__ to the corresponding Julia expression.
+translates a Lisp-like expression `x` to the corresponding Julia expression.
 """
-translate_lambda(x) = translate_lambda!(deepcopy(x))
+lexpr2expr(x) = lexpr2expr!(deepcopy(x))
 
-macro translate_lambda(x)
-    QuoteNode(translate_lambda(x))
+"""
+`@lexpr2expr(x)` is the macro version of `lexpr2expr(x)`.
+"""
+macro lexpr2expr(x)
+    QuoteNode(lexpr2expr(x))
 end
 
-"""`eval_lambda(x, m::Module=Main)` is the function version of `@eval_lambda(x)`"""
-eval_lambda(x, m::Module=Main) = Core.eval(m, translate_lambda(x))
+"""`leval(x, m::Module=Main)` is the function version of `@leval(x)`"""
+leval(x, m::Module=Main) = Core.eval(m, lexpr2expr(x))
 
 """
-    @eval_lambda(x)
+    @leval x
 
-evaluates an expression with __lambda__.
+evaluates a Lisp-like expression `x`.
 """
-macro eval_lambda(x)
-    esc(translate_lambda(x))
+macro leval(x)
+    esc(lexpr2expr(x))
 end
 
 ########## Lisp-like functions
 
-export Nil, nil, null, eq, cons, car, cdr, caar, cadr, cdar, cddr
+export Nil, nil, null, eq, cons, car, cdr, caar, cadr, cdar, cddr, list
 
+"""`Nil` is the type of `nil`."""
 struct Nil end
 """`nil` is the singleton of type `Nil` regarded as the Lisp-like nil."""
 const nil = Nil()
@@ -76,33 +137,42 @@ eq(x, y) = x == y
 eq(x::Tuple, ::Nil) = x == ()
 eq(::Nil, y::Tuple) = () == y
 
-"""`cons(x, y)` is the Lisp-like cons function."""
-cons(x, y) = (x, y)
+"""
+`cons(x, y)` is a Lisp-like cons function.
+
+* The S-expression (a b c d) is represented by the tuple (a, b, c, d).
+* The S-expression (a b c . d) is represented by the tuple (a, b, c=>d).
+"""
+cons(x, y) = Pair(x, y)
+cons(x, ::Nil) = (x,)
+cons(x, y::Pair) = (x, y)
 cons(x, y::Tuple) = (x, y...)
 
-"""
-`car(x, y)` is the Lisp-like car function.
-
-* The S-expression (a b c d) is represented by the tuple (a, b, c, d, nil).
-* The S-expression (a b c . d) is represented by the tuple (a, b, c, d).
-"""
+"""`car(x, y)` is a Lisp-like car function."""
 car(x) = nil
-car(x::Tuple) = x[1]
+car(x::Pair) = x.first
+car(x::Tuple) = x[begin]
 
-"""`cdr(x, y)` is the Lisp-like cdr function."""
+"""`cdr(x, y)` is a Lisp-like cdr function."""
 cdr(x) = nil
-cdr(x::Tuple) = length(x) == 2 ? x[2] : x[2:end]
+cdr(x::Pair) = x.second
+cdr(x::Tuple) = isone(length(x)) ? nil : x[begin+1:end]
 
-"""`caar(x, y)` is the Lisp-like caar function."""
+"""`caar(x, y)` is a Lisp-like caar function."""
 caar(x) = car(car(x))
 
-"""`cadr(x, y)` is the Lisp-like cadr function."""
+"""`cadr(x, y)` is a Lisp-like cadr function."""
 cadr(x) = car(cdr(x))
 
-"""`cdar(x, y)` is the Lisp-like cdar function."""
+"""`cdar(x, y)` is a Lisp-like cdar function."""
 cdar(x) = cdr(car(x))
 
-"""cddr(x, y) is the Lisp-like cddr function."""          
+"""`cddr(x, y)` is a Lisp-like cddr function."""          
 cddr(x) = cdr(cdr(x))
+
+"""`list(x...)` is a Lisp-like list function."""
+list() = nil
+list(x) = cons(x, nil)
+list(x, y, z...) = cons(x, list(y, z...))
 
 end

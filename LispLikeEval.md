@@ -13,6 +13,17 @@ jupyter:
     name: julia-mkl-depwarn--o3-1.5
 ---
 
+# LispLikeEval.ipynb
+
+* Author: Gen Kuroki
+* Date: 2020-10-19
+* Repository: https://github.com/genkuroki/LispLikeEval.jl
+
+<!-- #region {"toc": true} -->
+<h1>Table of Contents<span class="tocSkip"></span></h1>
+<div class="toc"><ul class="toc-item"><li><span><a href="#Examples" data-toc-modified-id="Examples-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Examples</a></span></li><li><span><a href="#Plot-example-of-MetaUtils.@teval" data-toc-modified-id="Plot-example-of-MetaUtils.@teval-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Plot example of MetaUtils.@teval</a></span></li><li><span><a href="#Documents" data-toc-modified-id="Documents-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Documents</a></span></li></ul></div>
+<!-- #endregion -->
+
 ```julia
 if isfile("Project.toml")
     using Pkg
@@ -26,121 +37,118 @@ using LispLikeEval
 using MetaUtils
 ```
 
+## Examples
+
 ```julia
-expr = :(lambda((x, y), sin(x)*y)(1, 2))
+lexpr = :(lambda((x, y), x+y)(1, 2))
+show(lexpr); println("\n")
+show_texpr(lexpr); println("\n")
+
+println("|\nV\n")
+
+expr = lexpr2expr(lexpr)
 show(expr); println("\n")
 show_texpr(expr); println("\n")
-translate_lambda(expr) |> show
-@eval_lambda lambda((x, y), sin(x)*y)(1, 2)
+
+@leval lambda((x, y), x+y)(1, 2)
 ```
 
 ```julia
-expr = :(lambda((f, x), f(x))(lambda(x, iszero(x) ? 1 : x*f(x-1)), 10))
+lexpr = :(lambda((f, x), f(x))(
+        lambda(x, cond((iszero(x), 1), (true, x*f(x-1)))),
+        10))
+show(lexpr); println("\n")
+show_texpr(lexpr); println("\n")
+
+println("|\nV\n")
+
+expr = lexpr2expr(lexpr)
 show(expr); println("\n")
 show_texpr(expr); println("\n")
-translate_lambda(expr) |> show
-@eval_lambda lambda((f, x), f(x))(
-    lambda(x, iszero(x) ? 1 : x*f(x-1)),
-    10
-)
+
+@leval lambda((f, x), f(x))(
+    lambda(x, cond((iszero(x), 1), (true, x*f(x-1)))),
+    10)
 ```
 
 ```julia
-@eval_lambda lambda((f, x), f(x))(
-    x -> iszero(x) ? 1 : x*f(x-1),
-    10
-)
-```
-
-```julia
-@show_texpr (lambda((assoc, k, v), assoc(k, v)))(
-    lambda((k, v), 
-        eq(v, nil)         ? nil    :
-        eq(car(car(v)), k) ? car(v) :
-        assoc(k, cdr(v))),
+@lexpr2expr lambda((assoc, k, v), assoc(k, v))(
+    lambda((k, v), cond(
+            (eq(v, nil), nil),
+            (eq(car(car(v)), k), car(v)), 
+            (true, assoc(k, cdr(v))))),
     :Orange,
-    ((:Apple, 120), (:Orange, 210), (:Lemmon, 180), nil))
+    (:Apple=>120, :Orange=>210, :Lemmon=>180))
 ```
 
 ```julia
-@translate_lambda (lambda((assoc, k, v), assoc(k, v)))(
-    lambda((k, v), 
-        eq(v, nil)         ? nil    :
-        eq(car(car(v)), k) ? car(v) :
-        assoc(k, cdr(v))),
-    :Orange,
-    ((:Apple, 120), (:Orange, 210), (:Lemmon, 180), nil))
-```
-
-```julia
-@eval_lambda (lambda((assoc, k, v), assoc(k, v)))(
-    lambda((k, v), 
-        eq(v, nil)         ? nil    :
-        eq(car(car(v)), k) ? car(v) :
-        assoc(k, cdr(v))),
+@leval lambda((assoc, k, v), assoc(k, v))(
+    lambda((k, v), cond(
+            (eq(v, nil), nil),
+            (eq(car(car(v)), k), car(v)), 
+            (true, assoc(k, cdr(v))))),
     :Apple,
-    ((:Apple, 120), (:Orange, 210), (:Lemmon, 180), nil))
+    (:Apple=>120, :Orange=>210, :Lemmon=>180))
 ```
 
 ```julia
-@eval_lambda (lambda((assoc, k, v), assoc(k, v)))(
-    lambda((k, v), 
-        eq(v, nil)         ? nil    :
-        eq(car(car(v)), k) ? car(v) :
-        assoc(k, cdr(v))),
+@leval lambda((assoc, k, v), assoc(k, v))(
+    lambda((k, v), cond(
+            (eq(v, nil), nil),
+            (eq(car(car(v)), k), car(v)), 
+            (true, assoc(k, cdr(v))))),
     :Orange,
-    ((:Apple, 120), (:Orange, 210), (:Lemmon, 180), nil))
+    (:Apple=>120, :Orange=>210, :Lemmon=>180))
 ```
 
 ```julia
-@eval_lambda (lambda((assoc, k, v), assoc(k, v)))(
-    lambda((k, v), 
-        eq(v, nil)         ? nil    :
-        eq(car(car(v)), k) ? car(v) :
-        assoc(k, cdr(v))),
+@leval lambda((assoc, k, v), assoc(k, v))(
+    lambda((k, v), cond(
+            (eq(v, nil), nil),
+            (eq(car(car(v)), k), car(v)), 
+            (true, assoc(k, cdr(v))))),
     :Lemmon,
-    ((:Apple, 120), (:Orange, 210), (:Lemmon, 180), nil))
+    (:Apple=>120, :Orange=>210, :Lemmon=>180))
 ```
 
 ```julia
-@eval_lambda (lambda((assoc, k, v), assoc(k, v)))(
-    lambda((k, v), 
-        eq(v, nil)         ? nil    :
-        eq(car(car(v)), k) ? car(v) :
-        assoc(k, cdr(v))),
+@leval lambda((assoc, k, v), assoc(k, v))(
+    lambda((k, v), cond(
+            (eq(v, nil), nil),
+            (eq(car(car(v)), k), car(v)), 
+            (true, assoc(k, cdr(v))))),
     :Melon,
-    ((:Apple, 120), (:Orange, 210), (:Lemmon, 180), nil))
+    (:Apple=>120, :Orange=>210, :Lemmon=>180))
 ```
 
 ```julia
 texpr_exmaple4(x) = (:call, 
     (:lambda, (:tuple, :assoc, :k, :v), (:call, :assoc, :k, :v)), 
-    (:lambda, (:tuple, :k, :v), 
-        (:if, (:eq, :v, (:tuple,)), :nil,
-            (:if, (:eq, (:car, (:car, :v)), :k), (:car, :v), 
-                (:call, :assoc, :k, (:cdr, :v))))), 
+    (:lambda, (:tuple, :k, :v), (:cond, 
+            (:tuple, (:eq, :v, :nil), :nil), 
+            (:tuple, (:eq, (:car, (:car, :v)), :k), (:car, :v)), 
+            (:tuple, true, (:call, :assoc, :k, (:cdr, :v))))), 
     QuoteNode(x), 
-    (:tuple, 
-        (:tuple, QuoteNode(:Apple),  120), 
-        (:tuple, QuoteNode(:Orange), 210), 
-        (:tuple, QuoteNode(:Lemmon), 180), :nil))
+    :((:Apple=>120, :Orange=>210, :Lemmon=>180)))
 ```
 
 ```julia
-texpr_exmaple4(:Apple) |> texpr2expr |> eval_lambda
+texpr_exmaple4(:Apple) |> texpr2expr |> leval
 ```
 
 ```julia
-texpr_exmaple4(:Orange) |> texpr2expr |> eval_lambda
+texpr_exmaple4(:Orange) |> texpr2expr |> leval
 ```
 
 ```julia
-texpr_exmaple4(:Lemmon) |> texpr2expr |> eval_lambda
+texpr_exmaple4(:Lemmon) |> texpr2expr |> leval
 ```
 
 ```julia
-texpr_exmaple4(:Melon) |> texpr2expr |> eval_lambda
+texpr_exmaple4(:Melon) |> texpr2expr |> leval
 ```
+
+## Plot example of MetaUtils.@teval
 
 ```julia
 begin
@@ -233,6 +241,80 @@ end
             (:kw, :lw, 2)), 
         :xs, (:., :f, (:tuple, :xs)))) |> texpr2expr |> 
 x -> display("text/markdown", "```julia\n$x\n```")
+```
+
+## Documents
+
+```julia
+@doc lambda
+```
+
+```julia
+@doc cond
+```
+
+```julia
+@doc lexpr2expr
+```
+
+```julia
+@doc @lexpr2expr
+```
+
+```julia
+@doc leval
+```
+
+```julia
+@doc @leval
+```
+
+```julia
+@doc Nil
+```
+
+```julia
+@doc nil
+```
+
+```julia
+@doc null
+```
+
+```julia
+@doc eq
+```
+
+```julia
+@doc cons
+```
+
+```julia
+@doc car
+```
+
+```julia
+@doc cdr
+```
+
+```julia
+@doc caar
+```
+
+```julia
+@doc cadr
+```
+
+```julia
+@doc cdar
+```
+
+```julia
+@doc cddr
+```
+
+```julia
+@doc list
 ```
 
 ```julia
