@@ -13,11 +13,18 @@ jupyter:
     name: julia-mkl-depwarn--o3-1.5
 ---
 
+<!-- #region -->
 # LispLikeEval.ipynb
 
 * Author: Gen Kuroki
 * Date: 2020-10-19
 * Repository: https://github.com/genkuroki/LispLikeEval.jl
+
+**Installation**
+```
+pkg> add https://github.com/genkuroki/LispLikeEval.jl
+```
+<!-- #endregion -->
 
 <!-- #region {"toc": true} -->
 <h1>Table of Contents<span class="tocSkip"></span></h1>
