@@ -28,7 +28,7 @@ pkg> add https://github.com/genkuroki/LispLikeEval.jl
 
 <!-- #region {"toc": true} -->
 <h1>Table of Contents<span class="tocSkip"></span></h1>
-<div class="toc"><ul class="toc-item"><li><span><a href="#Lisp-like-functions" data-toc-modified-id="Lisp-like-functions-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Lisp-like functions</a></span></li><li><span><a href="#@leval-examples" data-toc-modified-id="@leval-examples-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>@leval examples</a></span></li><li><span><a href="#MetaUtils.@teval-plot-exmaple" data-toc-modified-id="MetaUtils.@teval-plot-exmaple-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>MetaUtils.@teval plot exmaple</a></span></li><li><span><a href="#Documents" data-toc-modified-id="Documents-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>Documents</a></span></li></ul></div>
+<div class="toc"><ul class="toc-item"><li><span><a href="#Lisp-like-functions" data-toc-modified-id="Lisp-like-functions-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Lisp-like functions</a></span></li><li><span><a href="#@leval-examples" data-toc-modified-id="@leval-examples-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>@leval examples</a></span><ul class="toc-item"><li><span><a href="#lambda-expression-of-addition" data-toc-modified-id="lambda-expression-of-addition-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>lambda expression of addition</a></span></li><li><span><a href="#factorial" data-toc-modified-id="factorial-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>factorial</a></span></li><li><span><a href="#more-Lisp-like-example" data-toc-modified-id="more-Lisp-like-example-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>more Lisp-like example</a></span></li></ul></li><li><span><a href="#Documents" data-toc-modified-id="Documents-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Documents</a></span></li></ul></div>
 <!-- #endregion -->
 
 ```julia
@@ -65,11 +65,11 @@ using MetaUtils
 ```
 
 ```julia
+@show eq(1, 1)
+@show eq(1, 2)
 @show eq(nil, nil)
 @show eq(nil, ())
 @show eq((), nil)
-@show eq(1, 1)
-@show eq(1, 2)
 ;
 ```
 
@@ -82,10 +82,22 @@ using MetaUtils
 ```
 
 ```julia
+@show a = cons(1, nil)
+@show b = cons(2, a)
+@show c = cons(3, b)
+@show d = cons(4, c)
+;
+```
+
+```julia
 @show car(1)
-@show car(1=>2)
+@show car((1=>2,))
 @show car((1, 2=>3))
 @show car((1, 2, 3=>4))
+;
+```
+
+```julia
 @show car((1,))
 @show car((1, 2))
 @show car((1, 2, 3))
@@ -95,9 +107,13 @@ using MetaUtils
 
 ```julia
 @show cdr(1)
-@show cdr(1=>2)
+@show cdr((1=>2,))
 @show cdr((1, 2=>3))
 @show cdr((1, 2, 3=>4))
+;
+```
+
+```julia
 @show cdr((1,))
 @show cdr((1, 2))
 @show cdr((1, 2, 3))
@@ -116,6 +132,9 @@ using MetaUtils
 
 ## @leval examples
 
+
+### lambda expression of addition
+
 ```julia
 lexpr = :(lambda((x, y), x+y)(1, 2))
 show(lexpr); println("\n")
@@ -129,6 +148,8 @@ show_texpr(expr); println("\n")
 
 @leval lambda((x, y), x+y)(1, 2)
 ```
+
+### factorial
 
 ```julia
 lexpr = :(lambda((f, x), f(x))(
@@ -148,6 +169,26 @@ show_texpr(expr); println("\n")
     10)
 ```
 
+### more Lisp-like example
+
+<!-- #region -->
+https://nbviewer.jupyter.org/gist/genkuroki/b60908cca4f4978b8adcaa7955e7b5b6
+
+**example 4**
+
+```lisp
+((lambda (assoc k v) (assoc k v))
+ '(lambda (k v)
+    (cond ((eq v '()) nil)
+          ((eq (car (car v)) k)
+           (car v))
+          ('t (assoc k (cdr v)))))
+ 'Orange
+ '((Apple . 120) (Orange . 210) (Lemmon . 180)))
+=> (Orange . 210)
+```
+<!-- #endregion -->
+
 ```julia
 @lexpr2expr lambda((assoc, k, v), assoc(k, v))(
     lambda((k, v), cond(
@@ -155,7 +196,7 @@ show_texpr(expr); println("\n")
             (eq(car(car(v)), k), car(v)), 
             (true, assoc(k, cdr(v))))),
     :Orange,
-    (:Apple=>120, :Orange=>210, :Lemmon=>180))
+    ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
 ```
 
 ```julia
@@ -165,7 +206,7 @@ show_texpr(expr); println("\n")
             (eq(car(car(v)), k), car(v)), 
             (true, assoc(k, cdr(v))))),
     :Apple,
-    (:Apple=>120, :Orange=>210, :Lemmon=>180))
+    ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
 ```
 
 ```julia
@@ -175,7 +216,7 @@ show_texpr(expr); println("\n")
             (eq(car(car(v)), k), car(v)), 
             (true, assoc(k, cdr(v))))),
     :Orange,
-    (:Apple=>120, :Orange=>210, :Lemmon=>180))
+    ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
 ```
 
 ```julia
@@ -185,7 +226,7 @@ show_texpr(expr); println("\n")
             (eq(car(car(v)), k), car(v)), 
             (true, assoc(k, cdr(v))))),
     :Lemmon,
-    (:Apple=>120, :Orange=>210, :Lemmon=>180))
+    ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
 ```
 
 ```julia
@@ -195,7 +236,21 @@ show_texpr(expr); println("\n")
             (eq(car(car(v)), k), car(v)), 
             (true, assoc(k, cdr(v))))),
     :Melon,
-    (:Apple=>120, :Orange=>210, :Lemmon=>180))
+    ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
+```
+
+```julia
+@show_texpr lambda((assoc, k, v), assoc(k, v))(
+    lambda((k, v), cond(
+            (eq(v, nil), nil),
+            (eq(car(car(v)), k), car(v)), 
+            (true, assoc(k, cdr(v))))),
+    :Orange,
+    ((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,)))
+```
+
+```julia
+:(((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,))) |> show_texpr
 ```
 
 ```julia
@@ -205,8 +260,8 @@ texpr_exmaple4(x) = (:call,
             (:tuple, (:eq, :v, :nil), :nil), 
             (:tuple, (:eq, (:car, (:car, :v)), :k), (:car, :v)), 
             (:tuple, true, (:call, :assoc, :k, (:cdr, :v))))), 
-    QuoteNode(x), 
-    :((:Apple=>120, :Orange=>210, :Lemmon=>180)))
+    (:quote, x), 
+    :(((:Apple=>120,), (:Orange=>210,), (:Lemmon=>180,))))
 ```
 
 ```julia
@@ -223,101 +278,6 @@ texpr_exmaple4(:Lemmon) |> texpr2expr |> leval
 
 ```julia
 texpr_exmaple4(:Melon) |> texpr2expr |> leval
-```
-
-## MetaUtils.@teval plot exmaple
-
-```julia
-begin
-    using Plots
-    n = 20
-    x = range(-π, π; length=20)
-    noise = 0.3randn(n)
-    y = sin.(x) + noise
-    X = hcat((x.^k for k in 0:3)...)
-    b = X\y
-    f(x) = sum(b[k+1]*x^k for k in 0:3)
-    xs = range(-π, π; length=400)
-    plot(; legend=:topleft)
-    scatter!(x, y; label="sample")
-    plot!(xs, sin.(xs); label="sin(x)", color=:blue, ls=:dash)
-    plot!(xs, f.(xs); label="degree-3 polynomial", color=:red, lw=2)
-end
-```
-
-```julia
-@show_texpr begin
-    using Plots
-    n = 20
-    x = range(-π, π; length=20)
-    noise = 0.3randn(n)
-    y = sin.(x) + noise
-    X = hcat((x.^k for k in 0:3)...)
-    b = X\y
-    f(x) = sum(b[k+1]*x^k for k in 0:3)
-    xs = range(-π, π; length=400)
-    plot(; legend=:topleft)
-    scatter!(x, y; label="sample")
-    plot!(xs, sin.(xs); label="sin(x)", color=:blue, ls=:dash)
-    plot!(xs, f.(xs); label="degree-3 polynomial", color=:red, lw=2)
-end
-```
-
-```julia
-@teval (:block, 
-    (:using, (:., :Plots)), 
-    (:(=), :n, 20), 
-    (:(=), :x, (:range, (:parameters, (:kw, :length, 20)), (:-, :π), :π)), 
-    (:(=), :noise, (:*, 0.3, (:randn, :n))), 
-    (:(=), :y, (:+, (:., :sin, (:tuple, :x)), :noise)), 
-    (:(=), :X, 
-        (:hcat, (:..., (:generator, (:call, :.^, :x, :k), (:(=), :k, (:(:), 0, 3)))))), 
-    (:(=), :b, (:\, :X, :y)), 
-    (:(=), (:call, :f, :x), 
-        (:sum, (:generator, (:*, (:ref, :b, (:+, :k, 1)), (:^, :x, :k)), 
-            (:(=), :k, (:(:), 0, 3))))), 
-    (:(=), :xs, (:range, (:parameters, (:kw, :length, 400)), (:-, :π), :π)), 
-    (:plot, (:parameters, (:kw, :legend, QuoteNode(:topleft)))), 
-    (:scatter!, (:parameters, (:kw, :label, "sample")), :x, :y), 
-    (:plot!, (:parameters, 
-            (:kw, :label, "sin(x)"), 
-            (:kw, :color, QuoteNode(:blue)), 
-            (:kw, :ls, QuoteNode(:dash))), 
-        :xs, (:., :sin, (:tuple, :xs))), 
-    (:plot!, (:parameters, 
-            (:kw, :label, "degree-3 polynomial"), 
-            (:kw, :color, QuoteNode(:red)), 
-            (:kw, :lw, 2)), 
-        :xs, (:., :f, (:tuple, :xs))))
-```
-
-```julia
-(:block, 
-    (:using, (:., :Plots)), 
-    (:(=), :n, 20), 
-    (:(=), :x, (:range, (:parameters, (:kw, :length, 20)), (:-, :π), :π)), 
-    (:(=), :noise, (:*, 0.3, (:randn, :n))), 
-    (:(=), :y, (:+, (:., :sin, (:tuple, :x)), :noise)), 
-    (:(=), :X, 
-        (:hcat, (:..., (:generator, (:call, :.^, :x, :k), (:(=), :k, (:(:), 0, 3)))))), 
-    (:(=), :b, (:\, :X, :y)), 
-    (:(=), (:call, :f, :x), 
-        (:sum, (:generator, (:*, (:ref, :b, (:+, :k, 1)), (:^, :x, :k)), 
-            (:(=), :k, (:(:), 0, 3))))), 
-    (:(=), :xs, (:range, (:parameters, (:kw, :length, 400)), (:-, :π), :π)), 
-    (:plot, (:parameters, (:kw, :legend, QuoteNode(:topleft)))), 
-    (:scatter!, (:parameters, (:kw, :label, "sample")), :x, :y), 
-    (:plot!, (:parameters, 
-            (:kw, :label, "sin(x)"), 
-            (:kw, :color, QuoteNode(:blue)), 
-            (:kw, :ls, QuoteNode(:dash))), 
-        :xs, (:., :sin, (:tuple, :xs))), 
-    (:plot!, (:parameters, 
-            (:kw, :label, "degree-3 polynomial"), 
-            (:kw, :color, QuoteNode(:red)), 
-            (:kw, :lw, 2)), 
-        :xs, (:., :f, (:tuple, :xs)))) |> texpr2expr |> 
-x -> display("text/markdown", "```julia\n$x\n```")
 ```
 
 ## Documents
