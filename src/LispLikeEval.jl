@@ -156,7 +156,12 @@ car(x::Tuple) = x[begin]
 """`cdr(x)` is a Lisp-like cdr function."""
 cdr(x) = nil
 cdr(x::Pair) = x.second
-cdr(x::Tuple) = isone(length(x)) ? nil : x[begin+1:end]
+function cdr(x::Tuple)
+    n = length(x)
+    n == 1 && return nil
+    n == 2 && x[end] isa Pair && return x[end]
+    x[begin+1:end]
+end
 
 """`caar(x)` is a Lisp-like caar function."""
 caar(x) = car(car(x))
