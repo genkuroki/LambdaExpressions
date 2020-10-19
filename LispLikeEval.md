@@ -22,7 +22,7 @@ end
 ```
 
 ```julia
-using LambdaExpressions
+using LispLikeEval
 using MetaUtils
 ```
 
