@@ -1,9 +1,9 @@
-# LambdaExpressions
+# LispLikeEval
 
 <!--
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://genkuroki.github.io/LambdaExpressions.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://genkuroki.github.io/LambdaExpressions.jl/dev)
-[![Build Status](https://travis-ci.com/genkuroki/LambdaExpressions.jl.svg?branch=master)](https://travis-ci.com/genkuroki/LambdaExpressions.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://genkuroki.github.io/LispLikeEval.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://genkuroki.github.io/LispLikeEval.jl/dev)
+[![Build Status](https://travis-ci.com/genkuroki/LispLikeEval.jl.svg?branch=master)](https://travis-ci.com/genkuroki/LispLikeEval.jl)
 -->
 
-See [LambdaExpressions.ipynb](https://nbviewer.jupyter.org/github/genkuroki/LambdaExpressions.jl/blob/master/LambdaExpressions.ipynb).
+See [LispLikeEval.ipynb](https://nbviewer.jupyter.org/github/genkuroki/LispLikeEval.jl/blob/master/LispLikeEval.ipynb).

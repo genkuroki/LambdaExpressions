@@ -1,5 +1,5 @@
-name = "LambdaExpressions"
-uuid = "d7f0caad-bf46-47fc-bf86-cd66e2e49ce6"
+name = "LispLikeEval"
+uuid = "75a861b3-8f1b-477e-b3cd-11ffebdbd227"
 authors = ["genkuroki <genkuroki@gmail.com> and contributors"]
 version = "0.1.0"
 

@@ -1,6 +1,6 @@
-using LambdaExpressions
+using LispLikeEval
 using Test
 
-@testset "LambdaExpressions.jl" begin
+@testset "LispLikeEval.jl" begin
     # Write your tests here.
 end

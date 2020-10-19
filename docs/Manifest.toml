@@ -33,17 +33,17 @@ git-tree-sha1 = "81690084b6198a2e1da36fcfda16eeca9f9f24e4"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.1"
 
-[[LambdaExpressions]]
-path = ".."
-uuid = "d7f0caad-bf46-47fc-bf86-cd66e2e49ce6"
-version = "0.1.0"
-
 [[LibGit2]]
 deps = ["Printf"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
 
 [[Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+
+[[LispLikeEval]]
+path = ".."
+uuid = "75a861b3-8f1b-477e-b3cd-11ffebdbd227"
+version = "0.1.0"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"

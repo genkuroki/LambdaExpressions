@@ -28,7 +28,7 @@ jobs:
           Pkg.develop(PackageSpec(path=pwd()))
           Pkg.instantiate()
           using Documenter: doctest
-          using LambdaExpressions
-          doctest(LambdaExpressions)
+          using LispLikeEval
+          doctest(LispLikeEval)
           include("docs/make.jl")'
       after_success: skip

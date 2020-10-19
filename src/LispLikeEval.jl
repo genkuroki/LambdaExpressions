@@ -1,4 +1,4 @@
-module LambdaExpressions
+module LispLikeEval
 
 export translate_lambda, @translate_lambda, eval_lambda, @eval_lambda, lambda
 

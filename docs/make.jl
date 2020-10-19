@@ -1,14 +1,14 @@
-using LambdaExpressions
+using LispLikeEval
 using Documenter
 
 makedocs(;
-    modules=[LambdaExpressions],
+    modules=[LispLikeEval],
     authors="genkuroki <genkuroki@gmail.com> and contributors",
-    repo="https://github.com/genkuroki/LambdaExpressions.jl/blob/{commit}{path}#L{line}",
-    sitename="LambdaExpressions.jl",
+    repo="https://github.com/genkuroki/LispLikeEval.jl/blob/{commit}{path}#L{line}",
+    sitename="LispLikeEval.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://genkuroki.github.io/LambdaExpressions.jl",
+        canonical="https://genkuroki.github.io/LispLikeEval.jl",
         assets=String[],
     ),
     pages=[
@@ -17,5 +17,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/genkuroki/LambdaExpressions.jl",
+    repo="github.com/genkuroki/LispLikeEval.jl",
 )

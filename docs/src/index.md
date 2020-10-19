@@ -1,12 +1,12 @@
 ```@meta
-CurrentModule = LambdaExpressions
+CurrentModule = LispLikeEval
 ```
 
-# LambdaExpressions
+# LispLikeEval
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [LambdaExpressions]
+Modules = [LispLikeEval]
 ```
