@@ -148,26 +148,26 @@ cons(x, ::Nil) = (x,)
 cons(x, y::Pair) = (x, y)
 cons(x, y::Tuple) = (x, y...)
 
-"""`car(x, y)` is a Lisp-like car function."""
+"""`car(x)` is a Lisp-like car function."""
 car(x) = nil
 car(x::Pair) = x.first
 car(x::Tuple) = x[begin]
 
-"""`cdr(x, y)` is a Lisp-like cdr function."""
+"""`cdr(x)` is a Lisp-like cdr function."""
 cdr(x) = nil
 cdr(x::Pair) = x.second
 cdr(x::Tuple) = isone(length(x)) ? nil : x[begin+1:end]
 
-"""`caar(x, y)` is a Lisp-like caar function."""
+"""`caar(x)` is a Lisp-like caar function."""
 caar(x) = car(car(x))
 
-"""`cadr(x, y)` is a Lisp-like cadr function."""
+"""`cadr(x)` is a Lisp-like cadr function."""
 cadr(x) = car(cdr(x))
 
-"""`cdar(x, y)` is a Lisp-like cdar function."""
+"""`cdar(x)` is a Lisp-like cdar function."""
 cdar(x) = cdr(car(x))
 
-"""`cddr(x, y)` is a Lisp-like cddr function."""          
+"""`cddr(x)` is a Lisp-like cddr function."""          
 cddr(x) = cdr(cdr(x))
 
 """`list(x...)` is a Lisp-like list function."""
