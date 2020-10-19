@@ -140,26 +140,34 @@ eq(::Nil, y::Tuple) = () == y
 """
 `cons(x, y)` is a Lisp-like cons function.
 
-* The S-expression (a b c d) is represented by the tuple (a, b, c, d).
-* The S-expression (a b c . d) is represented by the tuple (a, b, c=>d).
+Examples: Denote (cons x y) by (x . y).
+
+* The S-expression (a) = (a . nil) is represented by the tuple `(a,)`.
+* The S-expression (a b) = (a b . nil) is represented by the tuple `(a, b)`.
+* The S-expression (a b c) = (a b c . nil) is represented by the tuple `(a, b, c)`.
+* The S-expression (a b c d) is represented by the tuple `(a, b, c, d)`.
+* Assume that b, c, d are not equal to nil.
+* The S-expression (a . b) is represented by the tuple `(a => b,)`.
+* The S-expression (a b . c) is represented by the tuple `(a, b => c)`.
+* The S-expression (a b c . d) is represented by the tuple `(a, b, c => d)`.
 """
-cons(x, y) = Pair(x, y)
+cons(x, y) = (x => y,)
 cons(x, ::Nil) = (x,)
-cons(x, y::Pair) = (x, y)
 cons(x, y::Tuple) = (x, y...)
 
 """`car(x)` is a Lisp-like car function."""
 car(x) = nil
-car(x::Pair) = x.first
-car(x::Tuple) = x[begin]
+function car(x::Tuple)
+    isone(length(x)) && x[begin] isa Pair && return x[begin].first
+    x[begin]
+end
 
 """`cdr(x)` is a Lisp-like cdr function."""
 cdr(x) = nil
-cdr(x::Pair) = x.second
 function cdr(x::Tuple)
     n = length(x)
+    n == 1 && x[begin] isa Pair && return x[begin].second
     n == 1 && return nil
-    n == 2 && x[end] isa Pair && return x[end]
     x[begin+1:end]
 end
 
